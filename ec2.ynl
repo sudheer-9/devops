@@ -1,0 +1,35 @@
+---
+# Basic provisioning example
+- name: Create AWS resources
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+  - name: Create security group
+      module: ec2_group
+      name: *my-security-group*
+      description: "A Security group"
+      region: "us-west-2"
+      rules:
+        - proto: tcp
+          type: ssh
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          type: all
+          cidr_ip: 0.0.0.0/0
+    register: basic_firewall
+
+  - name: create an EC2 instance
+    local_action:
+      module: ec2
+      key_name: "devops.key"
+      region: "us-west-2"
+      group_id: "test"
+      instance_type: "t2.micro"
+      image: ""us-west-2""
+      wait: yes
+    register: basic_ec2
+
